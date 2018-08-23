@@ -29,22 +29,36 @@ $this->post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail'
 $this->get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
 $this->post('password/reset', 'Auth\ResetPasswordController@reset');
 
+$this->get('state', 'MasterController@getState');
+$this->get('district/{id}', 'MasterController@getDistrict');
+$this->get('area/{id}', 'MasterController@getArea');
+
 Route::group(['middleware' => ['auth']], function () {
 
     // User Management
-    Route::get('user', 'UserController@showRegistrationForm')->name('register');
-    Route::post('user', 'UserController@register');
+    Route::get('user/add', 'UserController@create')->name('user.register');
+    Route::post('user', 'UserController@store')->name('user.create');
+    Route::get('user', 'UserController@index')->name('user.list');
+    Route::get('user/{id}/activate', 'UserController@activate')->name('user.activate');
 
-    Route::prefix('session-api')->group(function () {
-        // Inventory API Routes
-        Route::get('category', ['as' => 'inventory.category', 'uses' => 'CategoryController@index']);
-        Route::post('category', ['as' => 'inventory.category.create', 'uses' => 'CategoryController@create']);
-        Route::get('item', ['as' => 'inventory.item', 'uses' => 'ItemController@index']);
-        Route::post('item', ['as' => 'inventory.item.create', 'uses' => 'ItemController@create']);
-        Route::get('item/{id}/{camp}', ['as' => 'inventory.stock', 'uses' => 'ItemController@stock']);
-        Route::put('item/{id}/{camp}', ['as' => 'inventory.stock.update', 'uses' => 'ItemController@stockUpdate']);
-        // Route::get('camp/{camp}', ['as' => 'inventory.stock.camp', 'uses' => 'ItemController@campStock']);
-    });
+    // Inventory Item Management
+    Route::get('inventory/item', 'ItemController@index')->name('inventory.item');
+    Route::post('inventory/item', 'ItemController@store')->name('inventory.item.create');
+
+    // Inventory Stock Management
+    Route::get('inventory/stock', 'ItemController@stock')->name('inventory.stock.list');
+    Route::get('inventory/stock-camp', 'ItemController@campStock')->name('inventory.stock.camp');
+
+    // Route::prefix('session-api')->group(function () {
+    //     // Inventory API Routes
+    //     Route::get('category', ['as' => 'inventory.category', 'uses' => 'CategoryController@index']);
+    //     Route::post('category', ['as' => 'inventory.category.create', 'uses' => 'CategoryController@create']);
+    //     Route::get('item', ['as' => 'inventory.item', 'uses' => 'ItemController@index']);
+    //     Route::post('item', ['as' => 'inventory.item.create', 'uses' => 'ItemController@create']);
+    //     Route::get('item/{id}/{camp}', ['as' => 'inventory.stock', 'uses' => 'ItemController@stock']);
+    //     Route::put('item/{id}/{camp}', ['as' => 'inventory.stock.update', 'uses' => 'ItemController@stockUpdate']);
+    //     // Route::get('camp/{camp}', ['as' => 'inventory.stock.camp', 'uses' => 'ItemController@campStock']);
+    // });
 
     Route::prefix('views')->group(function () {
         Route::get('login', 'ViewController@getLogin');

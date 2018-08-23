@@ -39,6 +39,7 @@
         @include('common.header')
         @include('common.breadcrumbs')
         <div class="content mt-3">
+            @include('common.notification')
             @yield('content')
         </div>
         <!-- .content -->

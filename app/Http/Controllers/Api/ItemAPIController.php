@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
-use App\Category;
-use App\Item;
-use App\Stock;
-use App\Unit;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
+use App\Item;
+use App\Stock;
 
-class ItemController extends Controller
+class ItemAPIController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,13 +17,17 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        $categories = Category::getAllCategoriesOrdered();
-        $items = Item::Join('categories', 'items.category_id', '=', 'categories.id')
-            ->join('units', 'items.unit_id', '=', 'units.id')
-            ->select('items.id', 'items.name', 'categories.name as category', 'units.name as unit', 'items.perishable')
-            ->get();
-        $units = Unit::all();
-        return view('inventory.inventory_add', compact('categories', 'items', 'units'));
+        $items = Item::all();
+        if (isset($items) && count($items)) {
+            $data['meta']['status'] = 1;
+            $data['meta']['message'] = "Inventory items fetched successfully";
+            $data['data'] = $items;
+            return response($data, 200);
+        } else {
+            $data['meta']['status'] = 0;
+            $data['meta']['message'] = "No Inventory items found.";
+            return response($data, 404);
+        }
     }
 
     /**
@@ -51,10 +54,10 @@ class ItemController extends Controller
             'unit_id' => 'required|numeric',
         ]);
         if ($v->fails()) {
-            return redirect()->back()
-                ->withInput()
-                ->with('status', 'warning')
-                ->with('message', $v->errors());
+            $data['meta']['status'] = 0;
+            $data['meta']['message'] = "Failed adding Inventory item. Required fields are missing.";
+            $data['data'] = $v->errors();
+            return response($data, 400);
         } else {
             $item = new Item;
             $item->category_id = $request->category_id;
@@ -62,14 +65,13 @@ class ItemController extends Controller
             $item->unit_id = $request->unit_id;
             $item->perishable = $request->perishable;
             if ($item->save()) {
-                return redirect()->back()
-                    ->with('status', 'success')
-                    ->with('message', 'Item added succesfully');
+                $data['meta']['status'] = 1;
+                $data['meta']['message'] = "Inventory item created successfully";
+                return response($data, 200);
             }
-            return redirect()->back()
-                ->withInput()
-                ->with('status', 'danger')
-                ->with('message', 'Failed adding Item');
+            $data['meta']['status'] = 0;
+            $data['meta']['message'] = "Failed creating Inventory item";
+            return response($data, 400);
         }
     }
 
@@ -126,16 +128,21 @@ class ItemController extends Controller
     public function stock(Request $request, $id, $camp_id)
     {
         $item = Item::find($id);
-        if ($item) {
+        if($item) {
             $stock = $item->getStock($camp_id);
             if ($stock) {
-                return view('inventory.inventory_camps', compact('categories', 'items', 'item', 'stock'));
+                $data['meta']['status'] = 1;
+                $data['meta']['message'] = "Stock status for camp fetched successfully";
+                $data['data'] = $stock;
+                return response($data, 200);
             }
-            return view('inventory.inventory_camps', compact('categories'))
-                ->with('status', 'warning')
-                ->with('message', 'No stock for item ' . $item->name);
+            $data['meta']['status'] = 0;
+            $data['meta']['message'] = "No stock found in camp.";
+            return response($data, 404);
         }
-        return view('inventory.inventory_camps', compact('categories'));
+        $data['meta']['status'] = 0;
+        $data['meta']['message'] = "No item found.";
+        return response($data, 404);
     }
 
     /**
@@ -166,10 +173,4 @@ class ItemController extends Controller
             return response($data, 400);
         }
     }
-
-    public function campStock(Request $request, $camp_id)
-    {
-
-    }
-
 }

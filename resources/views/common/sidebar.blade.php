@@ -21,15 +21,15 @@
                     <li class="menu-item-has-children dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-table"></i>Users</a>
                         <ul class="sub-menu children dropdown-menu">
-                            <li><i class="fa fa-table"></i><a href="{{url('views/register')}}">Add User</a></li>
-                            <li><i class="fa fa-table"></i><a href="{{url('views/user-list')}}">Manage Users</a></li>
+                            <li><i class="fa fa-table"></i><a href="{{route('user.register')}}">Add User</a></li>
+                            <li><i class="fa fa-table"></i><a href="{{route('user.list')}}">Manage Users</a></li>
                         </ul>
                     </li>
                     <li class="menu-item-has-children dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-table"></i>Inventory</a>
                         <ul class="sub-menu children dropdown-menu">
-                            <li><i class="fa fa-table"></i><a href="{{url('views/inventory/add')}}">Add Item</a></li>
-                            <li><i class="fa fa-table"></i><a href="{{url('views/inventory/camps')}}">Camp Inventory</a></li>
+                            <li><i class="fa fa-table"></i><a href="{{route('inventory.item')}}">Add Item</a></li>
+                            <li><i class="fa fa-table"></i><a href="{{route('inventory.stock.camp')}}">Camp Inventory</a></li>
                         </ul>
                     </li>
                     {{-- <li class="menu-item-has-children dropdown">
